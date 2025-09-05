@@ -38,4 +38,6 @@ public interface InventoryMapper {
 
     List<Inventory> getInventoryByProductIdAndWarehouseIdOrderByExpiration(BigInteger productId, BigInteger warehouseId);
 
+    Integer getTotalInventoryCount();
+
 }

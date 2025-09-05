@@ -312,6 +312,9 @@
         WHERE product_id = #{productId} AND warehouse_id = #{warehouseId}
         ORDER BY expiration_date ASC
     </select>
+    <select id="getTotalInventoryCount" resultType="java.lang.Integer">
+        select SUM(quantity) from  inventory
+    </select>
 
 
 </mapper>

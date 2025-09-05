@@ -214,4 +214,9 @@ public class InventoryServiceImpl implements InventoryService {
             return new PageInfo<>(list);
         }
     }
+    @Override
+    public Integer getTotalInventoryCount() {
+        return inventoryMapper.getTotalInventoryCount();
+    }
+    
 }

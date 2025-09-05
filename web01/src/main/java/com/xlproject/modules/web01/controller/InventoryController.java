@@ -82,5 +82,9 @@ public class InventoryController {
     public R<PageInfo<TotalInventoryWithProductAndWarehouse>> getTotalInventoryBySupplierName(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) String supplierName){
         return R.OK("供应商名获取各商品总库存信息",inventoryService.getTotalInventoryBySupplierName(pageNum,pageSize,supplierName));
     }
+    @GetMapping("/inventory/totalCount")
+    public R<Integer> getTotalInventoryCount(){
+        return R.OK("获取商品总库存数量",inventoryService.getTotalInventoryCount());
+    }
 
 }

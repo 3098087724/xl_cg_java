@@ -26,6 +26,7 @@ public interface InventoryService {
     TotalInventoryWithProductAndWarehouse getTotalInventoryByProductId(BigInteger id);
     PageInfo<TotalInventoryWithProductAndWarehouse> getTotalInventoryByProductName(int pageNum, int pageSize, String productName);
     PageInfo<TotalInventoryWithProductAndWarehouse> getTotalInventoryBySupplierName(int pageNum, int pageSize, String supplierName);
+    Integer getTotalInventoryCount();
 
 
 }
