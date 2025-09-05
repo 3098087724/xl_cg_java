@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.OutboundOrderInfoMapper">
+
+    <resultMap id="OutboundOrderInfoRm" type="com.xlproject.modules.dto.outboundDto.OutboundOrderInfoDTO">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="type" property="type"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="username" property="username"/>
+        <result column="real_name" property="realName"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <collection property="outboundOrderItems"
+                    select="com.xlproject.modules.dao.mapper.OutboundOrderItemMapper.getOutboundItemsInfoByOrderId"
+                    column="id"
+                    ofType="com.xlproject.modules.dto.outboundDto.OutboundOrderItemInfoDTO"
+        />
+    </resultMap>
+
+    <select id="getAllOutboundOrderInfo" resultMap="OutboundOrderInfoRm">
+        select oo.*,u.username,u.real_name from outbound_order oo
+            LEFT JOIN  user u on oo.operator_id = u.id
+    </select>
+</mapper>

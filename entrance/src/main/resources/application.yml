@@ -1,0 +1,42 @@
+server:
+  port: 8888
+
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/campus_supermarket?useUnicode=true&useSSL=false&characterEncoding=utf8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  profiles:
+    active: common,dao,entity,service
+  # 静态资源配置
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,file:${web.upload-path}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 1GB
+
+# 自定义属性
+web:
+  upload-path: D:/test_images/
+
+# MyBatis配置
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.xlproject.modules.dao.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+# 分页插件配置
+pagehelper:
+  helper-dialect: mysql  # 指定数据库方言
+  reasonable: true      # 合理分页（页码小于1时返回第一页，大于最大页时返回最后一页）
+  support-methods-arguments: true # 规整可以通过方法参数获取，可用可不用输入即可
+  params: count=countSql

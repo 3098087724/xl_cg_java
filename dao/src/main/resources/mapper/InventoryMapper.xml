@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.InventoryMapper">
+    <select id="getInventoryById" resultType="com.xlproject.modules.entity.bean.Inventory">
+        select * from inventory where id=#{id}
+    </select>
+
+    <select id="getInventoryByProductId" resultType="com.xlproject.modules.entity.bean.Inventory">
+        SELECT * from inventory
+        <where>
+            <if test="id!=null">product_id=#{id}</if>
+        </where>
+    </select>
+
+    <select id="getInventoryByWarehouseId" resultType="com.xlproject.modules.entity.bean.Inventory">
+        SELECT * from inventory where warehouse_id=#{id}
+    </select>
+
+    <select id="getCountBySPCodeAndProductionDate" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM inventory
+        WHERE
+            EXISTS (
+                SELECT 1 FROM product p
+                WHERE p.id = inventory.product_id
+                  AND p.code = #{code}
+            )
+          AND production_date = #{date}
+    </select>
+
+    <insert id="addInventory">
+        insert into inventory
+        (product_id, warehouse_id, quantity, create_time, update_time, batch_no, production_date, expiration_date)
+        values (#{productId},#{warehouseId},#{quantity},#{createTime},#{updateTime},#{batchNo},#{productionDate},#{expirationDate})
+    </insert>
+
+    <select id="getInventoryByProductAndBatch" resultType="com.xlproject.modules.entity.bean.Inventory">
+        select * from inventory where product_id=#{productId} and  warehouse_id=#{warehouseID} and batch_no=#{batchNo}
+    </select>
+
+    <update id="updateInventory">
+        update inventory
+        <set>
+            <if test="quantity!=null">quantity=#{quantity},</if>
+            <if test="updateTime!=null">update_time=#{updateTime},</if>
+        </set>
+        where product_id=#{productId} and warehouse_id=#{warehouseId} and batch_no=#{batchNo}
+    </update>
+
+    <select id="genInventoryByBatchNo" resultType="com.xlproject.modules.entity.bean.Inventory">
+        select  * from inventory where batch_no=#{batchNo}
+    </select>
+
+    <resultMap id="inventoryProductWarehouseRm"
+               type="com.xlproject.modules.dto.InventoryDto.InventoryWithProductAndWarehouseDTO">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="dats_left" property="daysLeft"/>
+        <result column="batch_no" property="batchNo"/>
+        <result column="production_date" property="productionDate"/>
+        <result column="expiration_date" property="expirationDate"/>
+        <association
+                    property="product"
+                    select="com.xlproject.modules.dao.mapper.ProductMapper.getProductWithCategoryAndSupplierById"
+                    column="product_id"
+                    javaType="com.xlproject.modules.dto.productDto.ProductWithCategoryAndSupplierDTO"
+        >
+        </association>
+        <association property="warehouse" >
+            <id column="warehouse_id" property="id"/>
+            <result column="warehouse_name" property="name"/>
+            <result column="location" property="location"/>
+        </association>
+    </resultMap>
+
+    <select id="getAllInventoryInfo"
+           resultMap="inventoryProductWarehouseRm">
+        SELECT
+            i.*,
+            p.`name` product_name,p.`code`,p.price,p.unit,
+            w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+            LEFT JOIN
+            product p
+                ON i.product_id=p.id
+            LEFT JOIN
+            warehouse w
+                on i.warehouse_id=w.id
+    </select>
+
+    <select id="getInventoryInfoById"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+            i.*,
+            p.`name` product_name,p.`code`,p.price,p.unit,
+            w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+                 LEFT JOIN
+             product p
+             ON i.product_id=p.id
+                 LEFT JOIN
+             warehouse w
+             on i.warehouse_id=w.id
+        where i.id=#{id}
+    </select>
+
+    <select id="getInventoryInfoByProductId"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+            i.*,
+            p.`name` product_name,p.`code`,p.price,p.unit,
+            w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+                 LEFT JOIN
+             product p
+             ON i.product_id=p.id
+                 LEFT JOIN
+             warehouse w
+             on i.warehouse_id=w.id
+        where p.id=#{id}
+    </select>
+
+    <select id="getInventoryInfoByProductName"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+            i.*,
+            p.`name` product_name,p.`code`,p.price,p.unit,
+            w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+                 LEFT JOIN
+             product p
+             ON i.product_id=p.id
+                 LEFT JOIN
+             warehouse w
+             on i.warehouse_id=w.id
+        <where>
+            <if test="productName!=null">p.name like concat('%',#{productName},'%')</if>
+        </where>
+    </select>
+
+    <select id="getInventoryInfoByProductCode"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+        i.*,
+        p.`name` product_name,p.`code`,p.price,p.unit,
+        w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+        LEFT JOIN
+        product p
+        ON i.product_id=p.id
+        LEFT JOIN warehouse w on i.warehouse_id=w.id
+        <where>
+            <if test="productCode!=null">p.code = #{productCode}</if>
+        </where>
+    </select>
+
+    <select id="getInventoryInfoBySupplierName"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+        i.*,
+        p.`name` product_name,p.`code`,p.price,p.unit,
+        w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+        LEFT JOIN product p ON i.product_id=p.id
+        LEFT JOIN warehouse w on i.warehouse_id=w.id
+        LEFT JOIN  supplier s on p.supplier_id=s.id
+        <where>
+            <if test="supplierName!=null">s.name like  concat ( '%',#{supplierName},'%')</if>
+        </where>
+    </select>
+
+    <select id="getInventoryInfoByWarehouseId"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+        i.*,
+        p.`name` product_name,p.`code`,p.price,p.unit,
+        w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+        LEFT JOIN
+        product p
+        ON i.product_id=p.id
+        LEFT JOIN
+        warehouse w
+        on i.warehouse_id=w.id
+        <where>
+            <if test="warehouseId!=null"> i.warehouse_id=#{warehouseId}</if>
+        </where>
+    </select>
+
+    <select id="getInventoryInfoByCategoryName"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+        i.*,
+        p.`name` product_name,p.`code`,p.price,p.unit,
+        w.`name` warehouse_name,w.location,,DATEDIFF(i.expiration_date,NOW()) dats_left,
+        c.name category_name
+        FROM inventory i
+        LEFT JOIN product p ON i.product_id=p.id
+        LEFT JOIN warehouse w on i.warehouse_id=w.id
+        LEFT JOIN  category c on p.category_id = c.id
+        <where>
+            <if test="categoryName!=null"> c.name like concat('%',#{categoryName},'%')</if>
+        </where>
+    </select>
+
+    <select id="getMinStockInfoInventory"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+        i.*,
+        p.`name` product_name,p.`code`,p.price,p.unit,p.min_stock,
+        w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+        LEFT JOIN product p ON i.product_id=p.id
+        LEFT JOIN warehouse w on i.warehouse_id=w.id
+        WHERE product_id IN
+        (
+        SELECT i.product_id from inventory i
+            LEFT JOIN product p on i.product_id=p.id
+                             GROUP BY i.product_id HAVING SUM(i.quantity)&lt;SUM(p.min_stock)/count(product_id)
+        )
+        ORDER BY i.product_id
+    </select>
+
+    <select id="getInfoInventoryByDaysLeft"
+            resultMap="inventoryProductWarehouseRm">
+        SELECT
+            i.*,
+            p.`name` product_name,p.`code`,p.price,p.unit,
+            w.`name` warehouse_name,w.location,DATEDIFF(i.expiration_date,NOW()) dats_left
+        FROM inventory i
+                 LEFT JOIN product p ON i.product_id=p.id
+                 LEFT JOIN warehouse w on i.warehouse_id=w.id
+        <where>
+            <if test="daysLeft!=null">DATEDIFF(i.expiration_date,NOW()) &lt; #{daysLeft}</if>
+        </where>
+    </select>
+
+    <select id="getAllTotalInventory"
+            resultType="com.xlproject.modules.dto.InventoryDto.TotalInventoryWithProductAndWarehouse">
+        SELECT
+            i.product_id,p.`name`,SUM(i.quantity) total_quantity,p.price,p.`code`,p.unit,
+            GROUP_CONCAT(DISTINCT w.`name` SEPARATOR ',') as warehouse_name,
+            MIN(DATEDIFF(i.expiration_date,NOW()))AS min_days_left,
+            MIN(i.production_date) AS min_production_date,
+            p.supplier_id ,s.name supplier_name
+        from inventory i
+                 LEFT JOIN product p ON i.product_id=p.id
+                 LEFT JOIN warehouse w on i.warehouse_id=w.id
+                 LEFT JOIN supplier s on  p.supplier_id=s.id
+        GROUP BY i.product_id
+    </select>
+
+    <select id="getTotalInventoryByProductId"
+            resultType="com.xlproject.modules.dto.InventoryDto.TotalInventoryWithProductAndWarehouse">
+        SELECT
+            i.product_id,p.`name`,SUM(i.quantity) total_quantity,p.price,p.`code`,p.unit,
+            GROUP_CONCAT(DISTINCT w.`name` SEPARATOR ',') as warehouse_name,
+            MIN(DATEDIFF(i.expiration_date,NOW()))AS min_days_left,
+            MIN(i.production_date) AS min_production_date,
+            p.supplier_id ,s.name supplier_name
+        from inventory i
+                 LEFT JOIN product p ON i.product_id=p.id
+                 LEFT JOIN warehouse w on i.warehouse_id=w.id
+                 LEFT JOIN supplier s on  p.supplier_id=s.id
+            where i.product_id=#{id}
+        GROUP BY i.product_id
+    </select>
+
+    <select id="getTotalInventoryByProductName"
+            resultType="com.xlproject.modules.dto.InventoryDto.TotalInventoryWithProductAndWarehouse">
+        SELECT
+            i.product_id,p.`name`,SUM(i.quantity) total_quantity,p.price,p.`code`,p.unit,
+            GROUP_CONCAT(DISTINCT w.`name` SEPARATOR ',') as warehouse_name,
+            MIN(DATEDIFF(i.expiration_date,NOW()))AS min_days_left,
+            MIN(i.production_date) AS min_production_date,
+            p.supplier_id ,s.name supplier_name
+        from inventory i
+                 LEFT JOIN product p ON i.product_id=p.id
+                 LEFT JOIN warehouse w on i.warehouse_id=w.id
+                 LEFT JOIN supplier s on  p.supplier_id=s.id
+        <where>
+            <if test="productName!=null"> p.name like  concat('%',#{productName},'%')</if>
+        </where>
+        GROUP BY i.product_id
+    </select>
+
+    <select id="getTotalInventoryBySupplierName"
+            resultType="com.xlproject.modules.dto.InventoryDto.TotalInventoryWithProductAndWarehouse">
+        SELECT
+        i.product_id,p.`name`,SUM(i.quantity) total_quantity,p.price,p.`code`,p.unit,
+        GROUP_CONCAT(DISTINCT w.`name` SEPARATOR ',') as warehouse_name,
+        MIN(DATEDIFF(i.expiration_date,NOW()))AS min_days_left,
+        MIN(i.production_date) AS min_production_date,
+        p.supplier_id ,s.name supplier_name
+        from inventory i
+        LEFT JOIN product p ON i.product_id=p.id
+        LEFT JOIN warehouse w on i.warehouse_id=w.id
+        LEFT JOIN supplier s on  p.supplier_id=s.id
+        <where>
+            <if test="supplierName!=null"> s.name like  concat('%',#{supplierName},'%')</if>
+        </where>
+        GROUP BY i.product_id
+    </select>
+
+    <select id="getInventoryByProductIdAndWarehouseIdOrderByExpiration"
+            resultType="com.xlproject.modules.entity.bean.Inventory">
+        SELECT * FROM inventory
+        WHERE product_id = #{productId} AND warehouse_id = #{warehouseId}
+        ORDER BY expiration_date ASC
+    </select>
+
+
+</mapper>

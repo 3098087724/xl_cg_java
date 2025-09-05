@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.CategoryMapper">
+    <select id="getCategorys" resultType="com.xlproject.modules.entity.bean.Category">
+        SELECT * from category
+    </select>
+
+    <select id="getCategoryById" resultType="com.xlproject.modules.entity.bean.Category">
+        SELECT * from category WHERE id=#{id}
+    </select>
+    <select id="getCategoryByName" resultType="com.xlproject.modules.entity.bean.Category">
+        SELECT * from category WHERE name=#{name}
+    </select>
+
+    <insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO category(`name`,parent_id,`status`)
+        VALUES (#{name},#{parentId},#{status})
+    </insert>
+
+    <delete id="delCategoryById">
+        DELETE FROM category where id=#{id}
+    </delete>
+
+    <update id="editCategory">
+        UPDATE  category
+        <set>
+            <if test="name!=null">name=#{name},</if>
+            <if test="status!=null">status=#{status}</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <resultMap id="CategoryProductRM" type="com.xlproject.modules.dto.categoryDto.CategoryWithProductsDTO">
+        <id column="categoryId" property="id"/>
+        <result column="category_name" property="name"/>
+        <result column="category_Status" property="status"/>
+        <result column="category_create_time" property="createTime"/>
+        <collection property="products" ofType="com.xlproject.modules.entity.bean.Product">
+            <id column="id" property="id"/>
+            <result column="code" property="code"/>
+            <result column="name" property="name"/>
+            <result column="unit" property="unit"/>
+            <result column="price" property="price"/>
+            <result column="supplier_id" property="supplierId"/>
+            <result column="shelfLife" property="shelfLife"/>
+            <result column="imageUrl" property="imageUrl"/>
+            <result column="create_time" property="createTime"/>
+        </collection>
+        
+    </resultMap>
+
+    <select id="getCategoryWithProductsByCategoryID"
+           resultMap="CategoryProductRM">
+        SELECT
+            c.id categoryId,
+            c.`name` category_name,
+            c.`status` category_Status ,
+            c.create_time category_create_time,
+            p.*
+        FROM category c LEFT JOIN product p ON c.id=p.category_id
+        <where>
+            <if test="id != -1">
+                c.id = #{id}
+            </if>
+        </where>
+    </select>
+
+</mapper>

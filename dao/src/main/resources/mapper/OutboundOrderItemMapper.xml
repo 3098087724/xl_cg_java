@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.OutboundOrderItemMapper">
+
+    <insert id="addOutboundOrderItem">
+        insert into outbound_order_item(order_id, product_id, batch_no,warehouse_id,target_warehouse_id, quantity, unit_price, total_price, create_time)
+        values (#{orderId},#{productId},#{batchNo},#{warehouseId},#{targetWarehouseId},#{quantity},#{unitPrice},#{totalPrice},#{createTime})
+    </insert>
+
+    <resultMap id="OutboundItemsRm" type="com.xlproject.modules.dto.outboundDto.OutboundOrderItemInfoDTO">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="product_id" property="productId"/>
+        <result column="batch_no" property="batchNo"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="target_warehouse_id" property="targetWarehouseId"/>
+        <result column="target_warehouse_name" property="targetWarehouseName"/>
+        <result column="quantity" property="quantity"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="create_time" property="createTime"/>
+        <association property="product"
+                     select="com.xlproject.modules.dao.mapper.ProductMapper.getProductWithCategoryAndSupplierById"
+                     column="product_id"
+                     javaType="com.xlproject.modules.dto.productDto.ProductWithCategoryAndSupplierDTO"
+        />
+    </resultMap>
+    <select id="getOutboundItemsInfoByOrderId" resultMap="OutboundItemsRm">
+        select  ooi.*,w1.name warehouse_name,w2.name target_warehouse_name from outbound_order_item ooi
+                  LEFT JOIN warehouse w1 on ooi.warehouse_id = w1.id
+                  LEFT JOIN  warehouse w2 on ooi.target_warehouse_id=w2.id
+                  where order_id=#{id}
+    </select>
+</mapper>

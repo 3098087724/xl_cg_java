@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.ProductMapper">
+    <select id="getAllProduct" resultType="com.xlproject.modules.entity.bean.Product">
+        SELECT  * from product
+    </select>
+
+    <select id="getProductById" resultType="com.xlproject.modules.entity.bean.Product">
+        select * from product
+        <where>
+            <if test="id!=null">
+                id=#{id}
+            </if>
+        </where>
+    </select>
+
+    <select id="getProductByName" resultType="com.xlproject.modules.entity.bean.Product">
+        select * from product
+        <where>
+            <if test="name!=null">
+                name=#{name}
+            </if>
+        </where>
+    </select>
+
+    <select id="getProductsLikeName" resultType="com.xlproject.modules.entity.bean.Product">
+        select * from product
+        <where>
+            <if test="name!=null">
+                name like CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getProductByCode" resultType="com.xlproject.modules.entity.bean.Product">
+        select * from product
+        <where>
+            <if test="code!=null">
+                code=#{code}
+            </if>
+        </where>
+    </select>
+    <select id="getProductBySupplierId" resultType="com.xlproject.modules.entity.bean.Product">
+        select * from product where supplier_id=#{id}
+    </select>
+
+    <resultMap id="ProWithCatAndSuppRM" type="com.xlproject.modules.dto.productDto.ProductWithCategoryAndSupplierDTO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="unit" property="unit"/>
+        <result column="price" property="price"/>
+        <result column="min_stock" property="minStock"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="shelfLife" property="shelfLife"/>
+        <result column="status" property="status"/>
+        <result column="imageUrl" property="imageUrl"/>
+        <result column="create_time" property="createTime"/>
+        <association property="category" javaType="com.xlproject.modules.entity.bean.Category">
+            <id column="category_id" property="id"/>
+            <result column="category_name" property="name"/>
+        </association>
+        <association property="supplier" javaType="com.xlproject.modules.entity.bean.Supplier">
+            <id column="supplier_id" property="id"/>
+            <result column="supplier_name" property="name"/>
+        </association>
+
+    </resultMap>
+
+    <select id="getAllProductWithCategoryAndSupplier"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+            p.*,
+            c.name category_name,
+            s.name supplier_name
+            FROM product p LEFT JOIN category c ON p.category_id=c.id
+                                            LEFT JOIN supplier s ON p.supplier_id=s.id
+    </select>
+
+    <select id="getAllProductWithCategoryAndSupplierLikeName"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+            p.*,
+            c.name category_name,
+            s.name supplier_name
+        FROM product p LEFT JOIN category c ON p.category_id=c.id
+                       LEFT JOIN supplier s ON p.supplier_id=s.id
+        <where>
+             <if test="name!=null">
+                 p.name like CONCAT('%', #{name}, '%')
+             </if>
+        </where>
+    </select>
+
+    <select id="getProductWithCategoryAndSupplierByCode"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+        p.*,
+        c.name category_name,
+        s.name supplier_name
+        FROM product p LEFT JOIN category c ON p.category_id=c.id
+        LEFT JOIN supplier s ON p.supplier_id=s.id
+        <where>
+            <if test="code!=null">
+                code =#{code}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllProductWithCategoryAndSupplierLikeSupplierName"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+        p.*,
+        c.name category_name,
+        s.name supplier_name
+        FROM product p LEFT JOIN category c ON p.category_id=c.id
+        LEFT JOIN supplier s ON p.supplier_id=s.id
+        <where>
+            <if test="supplierName!=null">
+                s.name like CONCAT('%', #{supplierName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllProductWithCategoryAndSupplierLikeCategoryName"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+        p.*,
+        c.name category_name,
+        s.name supplier_name
+        FROM product p LEFT JOIN category c ON p.category_id=c.id
+        LEFT JOIN supplier s ON p.supplier_id=s.id
+        <where>
+            <if test="categoryName!=null">
+                c.name like CONCAT('%', #{categoryName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="addProduct" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product
+        (code, name, category_id, unit, price, supplier_id, shelf_life, status, image_url, create_time)
+        VALUES
+            (#{code}, #{name}, #{categoryId}, #{unit}, #{price}, #{supplierId}, #{shelfLife}, #{status}, #{imageUrl}, #{createTime})
+    </insert>
+
+    <update id="updProduct">
+        update product
+        <set>
+            <if test="name!=null">name=#{name},</if>
+            <if test="categoryId!=null">category_id=#{categoryId},</if>
+            <if test="unit!=null">unit=#{unit},</if>
+            <if test="price!=null">price=#{price},</if>
+            <if test="minStock!=null">min_stock=#{minStock},</if>
+            <if test="supplierId!=null">supplier_id=#{supplierId},</if>
+            <if test="shelfLife!=null">shelf_life=#{shelfLife},</if>
+            <if test="status!=null">status=#{status},</if>
+            <if test="imageUrl!=null">image_url=#{imageUrl}</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <delete id="delProductById">
+        delete from product where id=#{id}
+    </delete>
+
+    <select id="getMaxCode" resultType="java.lang.Integer">
+        SELECT
+            MAX(CAST(SUBSTRING(code, 3) AS UNSIGNED)) AS max_number
+        FROM
+            product
+        WHERE
+            code LIKE 'SP%';
+    </select>
+
+    <select id="getProductWithCategoryAndSupplierById"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+        p.*,
+        c.name category_name,
+        s.name supplier_name
+        FROM product p LEFT JOIN category c ON p.category_id=c.id
+        LEFT JOIN supplier s ON p.supplier_id=s.id
+            where
+                p.id=#{id}
+    </select>
+
+</mapper>

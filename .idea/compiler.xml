@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="dao" />
+        <module name="common" />
+        <module name="util" />
+        <module name="service" />
+        <module name="web01" />
+        <module name="entrance" />
+        <module name="entity" />
+        <module name="dto" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="common" options="-parameters" />
+      <module name="dao" options="-parameters" />
+      <module name="dto" options="-parameters" />
+      <module name="entity" options="-parameters" />
+      <module name="entrance" options="-parameters" />
+      <module name="service" options="-parameters" />
+      <module name="util" options="-parameters" />
+      <module name="web01" options="-parameters" />
+      <module name="xl-project" options="" />
+    </option>
+  </component>
+</project>

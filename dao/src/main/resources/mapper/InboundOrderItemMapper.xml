@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.InboundOrderItemMapper">
+
+    <select id="getMaxSerialByProductAndDate" resultType="java.lang.Integer">
+        SELECT MAX(
+                       CAST(SUBSTRING_INDEX(batch_no, '-', -1) AS UNSIGNED)
+               )
+        FROM inbound_order_item i
+                 JOIN product p ON i.product_id = p.id
+        WHERE p.code = #{code}
+          AND i.production_date = #{date}
+    </select>
+
+    <insert id="addInboundOrderItem">
+        insert into inbound_order_item
+            (order_id, batch_no, product_id, quantity, unit_price, total_price, production_date, create_time)
+        values (#{orderId},#{batchNo},#{productId},#{quantity},#{unitPrice},#{totalPrice},#{productionDate},#{createTime})
+    </insert>
+
+    <resultMap id="inboundItemsRM" type="com.xlproject.modules.dto.inboundDto.InboundOrderItemInfoDTO">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="batch_no" property="batchNo"/>
+        <result column="product_id" property="productId"/>
+        <result column="quantity" property="quantity"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="production_date" property="productionDate"/>
+        <result column="create_time" property="createTime"/>
+        <association property="product"
+                     select="com.xlproject.modules.dao.mapper.ProductMapper.getProductWithCategoryAndSupplierById"
+                     javaType="com.xlproject.modules.dto.productDto.ProductWithCategoryAndSupplierDTO"
+                     column="product_id"
+        >
+        </association>
+    </resultMap>
+    <select id="getInboundOrderItemInfoByOrderId"
+            resultMap="inboundItemsRM">
+        select  * from inbound_order_item where order_id=#{id}
+    </select>
+
+</mapper>

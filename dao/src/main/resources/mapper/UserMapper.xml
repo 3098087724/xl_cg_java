@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.UserMapper">
+
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO
+            user(username,password,real_name,phone,role,status,create_time)
+            VALUES
+            (#{username},#{password},#{realName},#{phone},#{role},#{status},#{createTime})
+    </insert>
+
+    <select id="queryUserByName" resultType="com.xlproject.modules.entity.bean.User">
+        SELECT * FROM `user` WHERE `username`=#{name}
+    </select>
+    <select id="queryUserById" resultType="com.xlproject.modules.entity.bean.User">
+        SELECT * FROM `user` WHERE `id`=#{id}
+    </select>
+
+    <update id="updUserInfo" >
+        UPDATE user
+        <set>
+            <if test="username!=null">username=#{username},</if>
+            <if test="realName!=null">real_name=#{realName},</if>
+            <if test="phone!=null">phone=#{phone},</if>
+            <if test="role!=null">role=#{role},</if>
+            <if test="status!=null">status=#{status}</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+
+    <update id="updUserPsw">
+        UPDATE  user
+        set  password=#{newPwd}
+        WHERE id=#{id} and username=#{username}
+    </update>
+
+    <update id="updUserRoleStatus">
+        UPDATE user
+        <trim prefix="SET" suffixOverrides="," >
+            <if test="role != null and role != ''">role = #{role},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+
+
+</mapper>

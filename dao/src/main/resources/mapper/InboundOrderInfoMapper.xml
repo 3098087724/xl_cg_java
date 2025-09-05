@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.InboundOrderInfoMapper">
+
+    <resultMap id="inboundOrderItemRm" type="com.xlproject.modules.dto.inboundDto.InboundOrderInfoDTO">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="type" property="type"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="username" property="username"/>
+        <result column="real_name" property="realName"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <collection property="inboundOrderItems"
+                    ofType="com.xlproject.modules.dto.inboundDto.InboundOrderItemInfoDTO"
+                    select="com.xlproject.modules.dao.mapper.InboundOrderItemMapper.getInboundOrderItemInfoByOrderId"
+                    column="id"
+        >
+        </collection>
+
+    </resultMap>
+    <select id="getAllInboundOrderInfo" resultMap="inboundOrderItemRm">
+        select
+            io.*,
+            u.username,u.real_name,
+            w.name warehouse_name
+        from inbound_order io
+                 LEFT JOIN `user` u on io.operator_id=u.id
+                 LEFT JOIN  warehouse w on io.warehouse_id=w.id
+    </select>
+</mapper>

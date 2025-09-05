@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.xlproject.modules.dao.mapper.OutboundOrderMapper">
+    <select id="getMaxOrderNoByDate" resultType="java.lang.String">
+        SELECT
+            MAX(
+                    CAST(
+                            SUBSTRING(order_no, 11) AS UNSIGNED  -- 从第9位开始截取数字部分
+                    )
+            ) AS max_seq
+        FROM
+            outbound_order
+        WHERE
+            DATE(create_time) = CURDATE()  -- 当天
+          AND order_no LIKE CONCAT('CK', DATE_FORMAT(CURDATE(), '%Y%m%d'), '%');
+    </select>
+    <insert id="addOutboundOrder" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into outbound_order
+            (order_no, type, operator_id, total_amount, status, remark, create_time)
+        values (#{orderNo},#{type},#{operatorId},#{totalAmount},#{status},#{remark},#{createTime})
+    </insert>
+</mapper>

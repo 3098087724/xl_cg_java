@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.WarehouseMapper">
+    <select id="getMaxCode" resultType="java.lang.Integer">
+        SELECT
+            MAX(CAST(SUBSTRING(code, 3) AS UNSIGNED)) AS max_number
+        FROM
+            warehouse
+        WHERE
+            code LIKE 'WH%';
+    </select>
+
+    <select id="getAllWarehouse" resultType="com.xlproject.modules.entity.bean.Warehouse">
+        select  * from warehouse
+    </select>
+
+    <select id="getWarehouseById" resultType="com.xlproject.modules.entity.bean.Warehouse">
+        select  * from warehouse where id=#{id}
+    </select>
+
+    <select id="getWarehouseByCode" resultType="com.xlproject.modules.entity.bean.Warehouse">
+        select  * from warehouse where code=#{code}
+    </select>
+    <select id="getWarehouseLikeCode" resultType="com.xlproject.modules.entity.bean.Warehouse">
+        select  * from warehouse
+        <where>
+            <if test="code!=null">code like concat('%',#{code},'%')</if>
+        </where>
+    </select>
+
+    <select id="getWarehouseLikeName" resultType="com.xlproject.modules.entity.bean.Warehouse">
+        select  * from warehouse
+        <where>
+            <if test="name!=null">name like concat('%',#{name},'%')</if>
+        </where>
+    </select>
+
+    <select id="getWarehouseByNameAndLocation" resultType="com.xlproject.modules.entity.bean.Warehouse">
+        select * from warehouse where name=#{name} <if test="location!=null">and  location=#{location}</if>
+    </select>
+
+    <select id="getAllWarehouseWithUser" resultType="com.xlproject.modules.dto.warehouseDto.WarehouseWithUserDTO">
+        select w.*,u.username,u.real_name from warehouse w left join  user u on w.manager_id = u.id
+    </select>
+
+    <select id="getWarehouseWithUserLikeCode" resultType="com.xlproject.modules.dto.warehouseDto.WarehouseWithUserDTO">
+        select w.*,u.username,u.real_name from warehouse w left join  user u on w.manager_id = u.id
+        <where>
+            <if test="code!=null">w.code like concat('%',#{code},'%')</if>
+        </where>
+    </select>
+
+    <select id="getWarehouseWithUserLikeName" resultType="com.xlproject.modules.dto.warehouseDto.WarehouseWithUserDTO">
+        select w.*,u.username,u.real_name from warehouse w left join  user u on w.manager_id = u.id
+        <where>
+            <if test="name!=null">w.name like concat('%',#{name},'%')</if>
+        </where>
+    </select>
+
+    <insert id="addWarehouse" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into warehouse (code, name, location, manager_id, capacity, status, create_time)
+        values (#{code},#{name},#{location},#{managerId},#{capacity},#{status},#{createTime})
+    </insert>
+
+    <update id="updWarehouse">
+        update warehouse
+        <set>
+            <if test="name!=null">name=#{name},</if>
+            <if test="location!=null">location=#{location},</if>
+            <if test="managerId!=null">manager_id=#{managerId},</if>
+            <if test="capacity!=null">capacity=#{capacity},</if>
+            <if test="status!=null">status=#{status}</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <delete id="delWarehouseById">
+        delete  from warehouse where id=#{id}
+    </delete>
+
+
+</mapper>

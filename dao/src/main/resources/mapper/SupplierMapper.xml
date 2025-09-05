@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xlproject.modules.dao.mapper.SupplierMapper">
+    <select id="getSupplierById" resultType="com.xlproject.modules.entity.bean.Supplier">
+        SELECT *FROM supplier where id=#{id}
+    </select>
+
+    <select id="getAllSupplier" resultType="com.xlproject.modules.entity.bean.Supplier">
+        select * from supplier
+    </select>
+
+    <select id="getSupplierByName" resultType="com.xlproject.modules.entity.bean.Supplier">
+        SELECT *FROM supplier where name=#{name}
+    </select>
+
+    <select id="getSuppliersLikeName" resultType="com.xlproject.modules.entity.bean.Supplier">
+        select * from supplier
+        <where>
+            <if test="name!=null">
+                name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="addSupplier" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO supplier(name, contact_person, phone, address, status, create_time)
+        VALUES (#{name}, #{contactPerson}, #{phone}, #{address}, #{status}, #{createTime})
+    </insert>
+
+    <update id="updSupplier">
+        update supplier
+        <set>
+            <if test="name!=null">name=#{name},</if>
+            <if test="contactPerson!=null">contact_person=#{contactPerson},</if>
+            <if test="phone!=null">phone=#{phone},</if>
+            <if test="address!=null">address=#{address},</if>
+            <if test="status!=null">status=#{status}</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <delete id="delSupplier">
+        delete from supplier where id=#{id}
+    </delete>
+
+    <resultMap id="supplierWithProductRM" type="com.xlproject.modules.dto.supplierDto.SupplierWithProductsDTO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="phone" property="phone"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <association property="product" >
+            <id column="product_id" property="id"/>
+            <result column="product_name" property="name"/>
+            <result column="code" property="code"/>
+        </association>
+
+    </resultMap>
+
+    <select id="getSupplierWithProductsLikeName"
+            resultMap="supplierWithProductRM">
+        SELECT
+            s.*,
+            p.id product_id,
+            p.`name` product_name,
+            p.`code`
+        FROM supplier s
+            INNER  JOIN
+            product p
+                on s.id=p.supplier_id
+        <where>
+            <if test="name!=null">s.name like concat('%',#{name},'%')</if>
+        </where>
+    </select>
+
+</mapper>
