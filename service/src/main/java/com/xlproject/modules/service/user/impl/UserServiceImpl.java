@@ -1,18 +1,25 @@
 package com.xlproject.modules.service.user.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.xlproject.modules.common.exception.BizException;
 import com.xlproject.modules.common.exception.BizExceptionEnum;
 import com.xlproject.modules.dao.mapper.UserMapper;
 import com.xlproject.modules.entity.bean.User;
+import com.xlproject.modules.entity.dto.UpdateUserInfoDTO;
 import com.xlproject.modules.service.user.UserService;
+import com.xlproject.modules.service.util.UserUpdateMapper;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
@@ -89,31 +96,103 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    
     /**
-     * 更改用户信息
+     * 验证手机号格式
+     * @param phone 手机号
+     */
+    private void validatePhoneNumber(String phone) {
+        if (!phone.matches("^1[3-9]\\d{9}$")) {
+            throw new BizException(BizExceptionEnum.USER_PHONE_ERROR);
+        }
+    }
+    
+    /**
+     * 更改用户信息（不包含密码）- 使用User对象
      *
      * @param user 用户对象
      * @return int 返回影响行数
      */
     @Override
     public int updUserInfo(User user) {
-        // 验证手机号格式（如果提供了手机号）
-        if (user.getPhone() != null && !user.getPhone().matches("^1[3-9]\\d{9}$")) {
-            throw new BizException(BizExceptionEnum.USER_PHONE_ERROR);
+        // 为了安全性，建议使用DTO版本的方法
+        // 这里提供基本实现以保持接口兼容性
+        if (user == null || user.getId() == null) {
+            throw new BizException(1000, "用户信息不能为空");
         }
-        // 检查用户名是否已被其他用户使用
-        User existingUser = userMapper.queryUserByName(user.getUsername());
-        if (existingUser != null && !existingUser.getId().equals(user.getId())) {
-            throw new BizException(BizExceptionEnum.USER_USERNAME_EXIT);
+        
+        User existingUser = userMapper.queryUserById(user.getId());
+        if (existingUser == null) {
+            throw new BizException(BizExceptionEnum.USER_NOT_EXIT);
         }
-        if (user.getRole() != null) {
-            throw new BizException(BizExceptionEnum.USER_ROLE_NOT_CAN_UPD);
+        
+        // 简单的验证
+        if (user.getPassword() != null) {
+            throw new BizException(1000, "密码不能通过此接口更改");
         }
-        if (user.getCreateTime() != null) {
-            throw new BizException(1000, "用户创建时间不可更改");
-        }
-
+        
         return userMapper.updUserInfo(user);
+    }
+
+    /**
+     * 更新用户信息（使用DTO，更安全的方式）
+     *
+     * @param updateDTO 用户更新信息DTO
+     * @return int 返回影响行数
+     */
+    @Override
+    public int updUserInfo(UpdateUserInfoDTO updateDTO) {
+        // 1. 基础参数验证
+        if (updateDTO == null) {
+            throw new BizException(1000, "更新信息不能为空");
+        }
+        if (updateDTO.getId() == null) {
+            throw new BizException(BizExceptionEnum.USER_ID_ERROR);
+        }
+        
+        // 2. 验证用户是否存在
+        User existingUser = userMapper.queryUserById(updateDTO.getId());
+        if (existingUser == null) {
+            throw new BizException(BizExceptionEnum.USER_NOT_EXIT);
+        }
+        
+        // 3. 验证业务规则（针对DTO）
+        validateDTOBusinessRules(updateDTO, existingUser);
+        
+        // 4. 转换DTO为User实体并执行更新
+        User userToUpdate = UserUpdateMapper.toUser(updateDTO);
+        int result = userMapper.updUserInfo(userToUpdate);
+        
+        // 5. 验证更新结果
+        if (result == 0) {
+            throw new BizException(1000, "用户信息更新失败，没有记录被更新");
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 验证DTO的业务规则
+     */
+    private void validateDTOBusinessRules(UpdateUserInfoDTO updateDTO, User existingUser) {
+        // 验证用户名唯一性（如果要更改用户名）
+        if (updateDTO.getUsername() != null && !updateDTO.getUsername().trim().isEmpty() 
+            && !updateDTO.getUsername().equals(existingUser.getUsername())) {
+            User userWithSameName = userMapper.queryUserByName(updateDTO.getUsername());
+            if (userWithSameName != null) {
+                throw new BizException(BizExceptionEnum.USER_USERNAME_EXIT);
+            }
+        }
+        
+        // 验证手机号格式（如果提供了手机号）
+        if (updateDTO.getPhone() != null && !updateDTO.getPhone().trim().isEmpty()) {
+            validatePhoneNumber(updateDTO.getPhone());
+        }
+        
+        // 验证真实姓名（如果提供了）
+        if (updateDTO.getRealName() != null && updateDTO.getRealName().trim().isEmpty()) {
+            throw new BizException(1000, "真实姓名不能为空字符串");
+        }
     }
 
     /**
@@ -126,14 +205,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updUserPsw(BigInteger id, String username, String oldPwd, String newPwd) {
         User user = userMapper.queryUserById(id);
-        //判断根据id获取的用户是否为空
-        if (user != null) {
-            //判断根据id获取的用户名是否与参数用户名相等
-            if (!username.equals(user.getUsername())) {
-                throw new BizException(BizExceptionEnum.USER_Name_ERROR);
-            }
-        } else {
+        if (user == null) {
             throw new BizException(BizExceptionEnum.USER_NOT_EXIT);
+        }
+        if (!username.equals(user.getUsername())) {
+            throw new BizException(BizExceptionEnum.USER_Name_ERROR);
         }
         if (!passwordEncoder.matches(oldPwd, user.getPassword())) {
             throw new BizException(BizExceptionEnum.USER_PASSWORD_ERROR);
@@ -197,9 +273,18 @@ public class UserServiceImpl implements UserService {
         if (roleUser.getRole() == null && roleUser.getStatus() == null) {
             throw new BizException(1000, "请至少设置role或status中的一个");
         }
-        System.out.println(roleUser);
         return userMapper.updUserRoleStatus(roleUser);
     }
 
+    @Override
+    public PageInfo<User> getUserLikeName(int pageNum, int pageSize, String name) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> result = userMapper.getUserLikeName(name);
+        return new PageInfo<>(result);
+    }
 
+    @Override
+    public List<User> getUserList() {
+        return userMapper.getUserLikeName(null);
+    }
 }

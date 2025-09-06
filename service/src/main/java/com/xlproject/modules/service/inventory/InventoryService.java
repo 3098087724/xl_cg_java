@@ -20,7 +20,7 @@ public interface InventoryService {
     PageInfo<InventoryWithProductAndWarehouseDTO> getInventoryInfoByWarehouseId(int pageNum, int pageSize, BigInteger warehouseId );
     PageInfo<InventoryWithProductAndWarehouseDTO> getInventoryInfoByCategoryName(int pageNum, int pageSize, String categoryName );
     PageInfo<InventoryWithProductAndWarehouseDTO> getInventoryInfoBySupplierName(int pageNum, int pageSize, String supplierName);
-    PageInfo<InventoryWithProductAndWarehouseDTO> getMinStockInfoInventory(int pageNum, int pageSize);
+    PageInfo<TotalInventoryWithProductAndWarehouse> getMinStockInfoInventory(int pageNum, int pageSize);
     PageInfo<InventoryWithProductAndWarehouseDTO> getInfoInventoryByDaysLeft(int pageNum, int pageSize, Integer daysLeft);
     PageInfo<TotalInventoryWithProductAndWarehouse> getAllTotalInventory(int pageNum, int pageSize);
     TotalInventoryWithProductAndWarehouse getTotalInventoryByProductId(BigInteger id);

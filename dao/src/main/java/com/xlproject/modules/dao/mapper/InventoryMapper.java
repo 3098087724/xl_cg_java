@@ -28,7 +28,7 @@ public interface InventoryMapper {
     List<InventoryWithProductAndWarehouseDTO> getInventoryInfoByWarehouseId(BigInteger warehouseId);
     List<InventoryWithProductAndWarehouseDTO> getInventoryInfoByCategoryName(String categoryName);
     List<InventoryWithProductAndWarehouseDTO> getInventoryInfoBySupplierName(String supplierName);
-    List<InventoryWithProductAndWarehouseDTO> getMinStockInfoInventory();
+    List<TotalInventoryWithProductAndWarehouse> getMinStockInfoInventory();
     List<InventoryWithProductAndWarehouseDTO> getInfoInventoryByDaysLeft(Integer daysLeft);
 
     List<TotalInventoryWithProductAndWarehouse> getAllTotalInventory();

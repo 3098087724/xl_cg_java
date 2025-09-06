@@ -7,15 +7,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 import java.io.File;
+import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(new MappingJackson2HttpMessageConverter());
+
+    }
 
     private JwtInterceptor jwtInterceptor;
     @Autowired
@@ -54,8 +63,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(jwtInterceptor)
-//                .addPathPatterns("/**") // 拦截所有请求
-//                .excludePathPatterns("/login", "/logout"); // 排除登录和登出接口
+        registry.addInterceptor(jwtInterceptor)
+                .addPathPatterns("/**") // 拦截所有请求
+                .excludePathPatterns("/login", "/logout", "/images/**"); // 排除登录、登出接口和图片访问
     }
 }

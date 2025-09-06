@@ -54,7 +54,7 @@ public class InventoryController {
     }
 
     @GetMapping("/inventory/info/minStock")
-    public R<PageInfo<InventoryWithProductAndWarehouseDTO>> getMinStockInfoInventory(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize){
+    public R<PageInfo<TotalInventoryWithProductAndWarehouse>> getMinStockInfoInventory(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize){
         return R.OK("获取库存预警的库存详细信息",inventoryService.getMinStockInfoInventory(pageNum,pageSize));
     }
 

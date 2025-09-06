@@ -27,4 +27,6 @@ public interface ProductService {
     int addProduct(Product newProduct, MultipartFile file) throws IOException;
     int updProduct(Product product,MultipartFile file);
     int delProductById(BigInteger id);
+
+    PageInfo<ProductWithCategoryAndSupplierDTO> getAllProductWithCategoryAndSupplierByChange(int pageNum, int pageSize, String prodectName, String categoryName, String supplierName);
 }

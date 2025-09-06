@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 @RestController
 public class OutboundOrderInfoController {
@@ -20,5 +19,10 @@ public class OutboundOrderInfoController {
     @GetMapping("/outboundInfo")
     public R<PageInfo<OutboundOrderInfoDTO>>getAllOutboundOrderInfo(@RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize){
         return R.OK("获取所有出库单详细信息",outboundInfoService.getAllOutboundOrderInfo(pageNum,pageSize));
+    }
+
+    @GetMapping("/outboundInfo/count")
+    public R<Integer> getOutboundOrderCount(){
+        return R.OK("获取出库订单总数", outboundInfoService.getOutboundOrderCount());
     }
 }

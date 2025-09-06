@@ -26,4 +26,5 @@ public interface ProductMapper {
     int delProductById(BigInteger id);
     ProductWithCategoryAndSupplierDTO getProductWithCategoryAndSupplierById(BigInteger id);
 
+    List<ProductWithCategoryAndSupplierDTO> getAllProductWithCategoryAndSupplierByChange(String productName, String categoryName, String supplierName);
 }

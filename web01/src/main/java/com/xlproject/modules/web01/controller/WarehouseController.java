@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.xlproject.modules.common.response.R;
 import com.xlproject.modules.dto.warehouseDto.WarehouseWithUserDTO;
 import com.xlproject.modules.entity.bean.Warehouse;
+import com.xlproject.modules.service.Generator.BizCodeGenerator;
 import com.xlproject.modules.service.warehouse.WarehouseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,11 @@ import java.math.BigInteger;
 @RestController
 public class WarehouseController {
     private WarehouseService warehouseService;
+    private BizCodeGenerator bizCodeGenerator;
     @Autowired
     public  void  setWarehouseService(WarehouseService warehouseService){this.warehouseService=warehouseService;}
+    @Autowired
+    public void setBizCodeGenerator(BizCodeGenerator bizCodeGenerator){this.bizCodeGenerator=bizCodeGenerator;}
 
     @GetMapping("/warehouses")
     public R<PageInfo<WarehouseWithUserDTO>> getAllWarehouseWithUser(
@@ -55,6 +59,7 @@ public class WarehouseController {
 
     @PutMapping("/warehouse")
     public  R<?> updWarehouse(@RequestBody Warehouse warehouse) {
+        System.out.println(warehouse);
         int i = warehouseService.updWarehouse(warehouse);
         if (i > 0) {
             return R.OK("更新仓库信息成功");
@@ -69,5 +74,9 @@ public class WarehouseController {
             return R.OK("删除该仓库成功");
         }
         return  R.ERROR(5000,"删除仓库失败，请重试");
+    }
+    @GetMapping("/warehouse/nextCode")
+    public R<String>getWarehouseNextCode(){
+        return R.OK("下次仓库编号",bizCodeGenerator.generate(BizCodeGenerator.BizCode.WAREHOUSE_CODE));
     }
 }

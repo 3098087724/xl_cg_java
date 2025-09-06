@@ -4,6 +4,7 @@ import com.xlproject.modules.entity.bean.User;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.math.BigInteger;
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -14,4 +15,5 @@ public interface UserMapper {
     int updUserPsw(BigInteger id, String username ,String newPwd);
     int updUserRoleStatus(User user);
 
+    List<User> getUserLikeName(String name);
 }

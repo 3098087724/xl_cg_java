@@ -13,8 +13,8 @@
     </select>
 
     <insert id="addCategory" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO category(`name`,parent_id,`status`)
-        VALUES (#{name},#{parentId},#{status})
+        INSERT INTO category(`name`,`status`)
+        VALUES (#{name},#{status})
     </insert>
 
     <delete id="delCategoryById">

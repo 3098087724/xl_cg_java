@@ -22,13 +22,13 @@ public class Product {
 
     @NotNull(message = "商品单价不能为空")
     @DecimalMin(value = "0.0", inclusive = false, message = "商品单价必须大于0")
-    private double price;//单价，单位：元
+    private Double price;//单价，单位：元
 
     @Min(value = 10, message = "预警值最低位10")
     private Integer minStock;//最低库存预警值，低于此值提醒补货,
 
     private BigInteger supplierId;//供应商ID
-    private int shelfLife;//保质期，单位（天）
+    private Integer shelfLife;//保质期，单位（天）
 
     @Min(value = 0, message = "状态必须是0或1")
     @Max(value = 1, message = "状态必须是0或1")

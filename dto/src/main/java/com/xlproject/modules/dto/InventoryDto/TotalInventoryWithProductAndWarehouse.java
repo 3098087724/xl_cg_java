@@ -18,4 +18,5 @@ public class TotalInventoryWithProductAndWarehouse {
     private String warehouseName;
     private BigInteger supplierId;
     private String supplierName;
+    private Integer minStock;
 }

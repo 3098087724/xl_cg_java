@@ -8,4 +8,5 @@ import java.util.List;
 @Mapper
 public interface OutboundOrderInfoMapper {
     List<OutboundOrderInfoDTO> getAllOutboundOrderInfo();
+    Integer getOutboundOrderCount();
 }

@@ -33,4 +33,8 @@
                  LEFT JOIN `user` u on io.operator_id=u.id
                  LEFT JOIN  warehouse w on io.warehouse_id=w.id
     </select>
+    
+    <select id="getInboundOrderCount" resultType="java.lang.Integer">
+        select count(*) from inbound_order
+    </select>
 </mapper>

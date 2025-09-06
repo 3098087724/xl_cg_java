@@ -19,11 +19,11 @@
     <update id="updUserInfo" >
         UPDATE user
         <set>
-            <if test="username!=null">username=#{username},</if>
-            <if test="realName!=null">real_name=#{realName},</if>
-            <if test="phone!=null">phone=#{phone},</if>
-            <if test="role!=null">role=#{role},</if>
-            <if test="status!=null">status=#{status}</if>
+            <if test="username != null and username != ''">username=#{username},</if>
+            <if test="realName != null and realName != ''">real_name=#{realName},</if>
+            <if test="phone != null and phone != ''">phone=#{phone},</if>
+            <if test="role != null">role=#{role},</if>
+            <if test="status != null">status=#{status}</if>
         </set>
         WHERE id=#{id}
     </update>
@@ -43,6 +43,11 @@
         WHERE id = #{id}
     </update>
 
-
+    <select id="getUserLikeName" resultType="com.xlproject.modules.entity.bean.User">
+        select  * from user
+        <where>
+            <if test="name!=null and name!=''">username LIKE CONCAT('%', #{name}, '%')</if>
+        </where>
+    </select>
 
 </mapper>

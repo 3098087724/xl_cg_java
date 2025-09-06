@@ -1,5 +1,7 @@
 package com.xlproject.modules.web01.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageInfo;
 import com.xlproject.modules.common.response.R;
 import com.xlproject.modules.dto.productDto.ProductWithCategoryAndSupplierDTO;
@@ -13,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.List;
 
 @RestController
 public class ProductController {
@@ -76,6 +77,15 @@ public class ProductController {
             @RequestParam(defaultValue = "1") int pageNum,@RequestParam(defaultValue = "10") int pageSize,@RequestParam(required = false) String name){
         return  R.OK("获取商品列表详细信息",productService.getAllProductWithCategoryAndSupplierLikeSupplierName(pageNum,pageSize,name));
     }
+
+    @GetMapping("/products/info/change")
+    public  R<PageInfo<ProductWithCategoryAndSupplierDTO>> getAllProductWithCategoryAndSupplierLikeSupplierName(
+            @RequestParam(defaultValue = "1") int pageNum,@RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String prodectName,@RequestParam(required = false) String categoryName,@RequestParam(required = false) String supplierName
+            ){
+        return  R.OK("获取商品列表详细信息",productService.getAllProductWithCategoryAndSupplierByChange(pageNum,pageSize,prodectName,categoryName,supplierName));
+    }
+
     @GetMapping("/product/nextCode")
     public R<String> getNextCode(){
         return R.OK("获取自动生成的商品编号",productService.getNextCode());
@@ -90,14 +100,17 @@ public class ProductController {
         return R.ERROR(3000, "新增商品失败，请重试");
     }
     @PutMapping("/product")
-    public R<?> updProduct(@RequestPart(value = "product") Product product,
-                                 @RequestPart(value =("productImage"),required = false)MultipartFile productImage){
+    public R<?> updProduct(@RequestPart(value = "product") String productJson,
+                           @RequestPart(value = "productImage", required = false) MultipartFile productImage) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Product product = mapper.readValue(productJson, Product.class);
         int i = productService.updProduct(product, productImage);
-        if (i>0){
-            return  R.OK("更新成功");
+        if (i > 0) {
+            return R.OK("更新成功");
         }
-        return  R.ERROR(3000,"更新失败，请重试");
+        return R.ERROR(3000, "更新失败，请重试");
     }
+
     @DeleteMapping("/product/{id}")
     public  R<?> delProductById(@PathVariable BigInteger id){
         int i = productService.delProductById(id);

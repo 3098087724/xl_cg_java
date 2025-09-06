@@ -24,8 +24,10 @@ public class JwtUtil {
     /**
      * 生成JWT token
      */
-    public String generateToken(String username) {
+    public String generateToken(String username, Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("role", role);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -40,6 +42,22 @@ public class JwtUtil {
      */
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
+    }
+
+    /**
+     * 解析JWT token获取用户ID
+     */
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("userId", Long.class);
+    }
+
+    /**
+     * 解析JWT token获取用户角色
+     */
+    public String extractRole(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("role", String.class);
     }
 
     /**
@@ -74,7 +92,6 @@ public class JwtUtil {
             final String extractedUsername = extractUsername(token);
             return (extractedUsername.equals(username) && !isTokenExpired(token));
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }

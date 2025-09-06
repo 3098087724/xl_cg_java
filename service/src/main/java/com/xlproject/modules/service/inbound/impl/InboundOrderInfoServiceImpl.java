@@ -21,4 +21,9 @@ public class InboundOrderInfoServiceImpl implements InboundOrderInfoService {
             return new PageInfo<>(list);
         }
     }
+
+    @Override
+    public Integer getInboundOrderCount() {
+        return inboundOrderInfoMapper.getInboundOrderCount();
+    }
 }

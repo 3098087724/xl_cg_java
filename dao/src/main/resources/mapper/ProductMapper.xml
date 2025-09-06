@@ -16,11 +16,7 @@
 
     <select id="getProductByName" resultType="com.xlproject.modules.entity.bean.Product">
         select * from product
-        <where>
-            <if test="name!=null">
-                name=#{name}
-            </if>
-        </where>
+                where name=#{name}
     </select>
 
     <select id="getProductsLikeName" resultType="com.xlproject.modules.entity.bean.Product">
@@ -46,15 +42,16 @@
 
     <resultMap id="ProWithCatAndSuppRM" type="com.xlproject.modules.dto.productDto.ProductWithCategoryAndSupplierDTO">
         <id column="id" property="id"/>
+        <result column="code" property="code"/>
         <result column="name" property="name"/>
         <result column="category_id" property="categoryId"/>
         <result column="unit" property="unit"/>
         <result column="price" property="price"/>
         <result column="min_stock" property="minStock"/>
         <result column="supplier_id" property="supplierId"/>
-        <result column="shelfLife" property="shelfLife"/>
+        <result column="shelf_life" property="shelfLife"/>
         <result column="status" property="status"/>
-        <result column="imageUrl" property="imageUrl"/>
+        <result column="image_url" property="imageUrl"/>
         <result column="create_time" property="createTime"/>
         <association property="category" javaType="com.xlproject.modules.entity.bean.Category">
             <id column="category_id" property="id"/>
@@ -183,6 +180,27 @@
         LEFT JOIN supplier s ON p.supplier_id=s.id
             where
                 p.id=#{id}
+    </select>
+    <select id="getAllProductWithCategoryAndSupplierByChange"
+            resultMap="ProWithCatAndSuppRM">
+        SELECT
+        p.*,
+        c.name category_name,
+        s.name supplier_name
+        FROM product p LEFT JOIN category c ON p.category_id=c.id
+        LEFT JOIN supplier s ON p.supplier_id=s.id
+        <where>
+            <if test="productName!=null and productName!=''">
+                p.name like CONCAT('%', #{productName}, '%')
+            </if>
+            <if test="categoryName!=null and categoryName!=''">
+                AND c.name like CONCAT('%', #{categoryName}, '%')
+            </if>
+            <if test="supplierName!=null and supplierName!=''">
+                AND s.name like CONCAT('%', #{supplierName}, '%')
+            </if>
+        </where>
+
     </select>
 
 </mapper>

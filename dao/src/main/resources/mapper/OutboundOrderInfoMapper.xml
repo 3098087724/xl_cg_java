@@ -24,4 +24,8 @@
         select oo.*,u.username,u.real_name from outbound_order oo
             LEFT JOIN  user u on oo.operator_id = u.id
     </select>
+    
+    <select id="getOutboundOrderCount" resultType="java.lang.Integer">
+        select count(*) from outbound_order
+    </select>
 </mapper>

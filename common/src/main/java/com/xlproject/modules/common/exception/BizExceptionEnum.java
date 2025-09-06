@@ -36,6 +36,7 @@ public enum BizExceptionEnum {
     PRODUCT_EXIT_INVENTORY(3013,"商品存在库存"),
     PRODUCT_DEL_ERROR(3014,"删除商品错误"),
     PRODUCT_MIN_STOCK_ERROR(3015,"商品最低预警值不可为空且不能小于10"),
+    PRODUCT_UNIT_ERROR(3016,"商品单位有误"),
 
     SUPPLIER_NOT_SEARCH_ID(4001,"通过id未查找到该供应商，请重新确认"),
     SUPPLIER_NOT_SEARCH_NAME(4002,"通过名字未查找到该供应商，请重新确认"),
@@ -76,6 +77,7 @@ public enum BizExceptionEnum {
 
     FILE_UPLOAD_ERROR(9001,"文件路径加载错误" ),
     FILE_TYPE_ERROR(9002, "文件类型错误，只允许上传图片文件");
+
 
 
     @Getter

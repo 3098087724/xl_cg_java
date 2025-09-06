@@ -161,9 +161,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public PageInfo<InventoryWithProductAndWarehouseDTO> getMinStockInfoInventory(int pageNum, int pageSize) {
+    public PageInfo<TotalInventoryWithProductAndWarehouse> getMinStockInfoInventory(int pageNum, int pageSize) {
         try (com.github.pagehelper.Page<InventoryWithProductAndWarehouseDTO> _page = PageHelper.startPage(pageNum, pageSize)) {
-            List<InventoryWithProductAndWarehouseDTO> list = inventoryMapper.getMinStockInfoInventory();
+            List<TotalInventoryWithProductAndWarehouse> list = inventoryMapper.getMinStockInfoInventory();
             return new PageInfo<>(list);
         }
     }

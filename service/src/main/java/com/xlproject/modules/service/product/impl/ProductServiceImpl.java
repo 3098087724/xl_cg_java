@@ -345,56 +345,84 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public int updProduct(Product product, MultipartFile file) {
-        Product productById = getProductById(product.getId());
-        Product productByName = productMapper.getProductByName(product.getName());
-        //判断商品id是否存在，判断商品名是否被占用，判断商品分类是否存在
-        if (productById == null) {
+        // 获取原商品信息
+        Product originalProduct = getProductById(product.getId());
+
+        // 验证商品是否存在
+        if (originalProduct == null) {
             throw new BizException(BizExceptionEnum.PRODUCT_NOT_EXIT);
         }
-        if (productByName != null && !productByName.getId().equals(product.getId())) {
-            throw new BizException(BizExceptionEnum.PRODUCT_NAME_ALREADY_EXIT);
+
+        // 验证商品名是否被占用（如果商品名有更改且不为空）
+        if (product.getName() != null && !product.getName().isEmpty() &&
+                !product.getName().equals(originalProduct.getName())) {
+            Product productByName = productMapper.getProductByName(product.getName());
+            if (productByName != null && !productByName.getId().equals(product.getId())) {
+                throw new BizException(BizExceptionEnum.PRODUCT_NAME_ALREADY_EXIT);
+            }
         }
-        if (product.getCategoryId() != null) {
+
+        // 验证商品分类是否存在（如果分类ID有更改且不为null）
+        if (product.getCategoryId() != null && !product.getCategoryId().equals(originalProduct.getCategoryId())) {
             categoryService.getCategoryById(product.getCategoryId());
         }
-        if (product.getPrice() < 0) {
-            throw new BizException(BizExceptionEnum.PRODUCT_PRICE_ERROR);
-        } else if (product.getPrice() == 0) {
-            product.setPrice(productById.getPrice());
+
+        // 验证价格（如果价格有传入）
+        if (product.getPrice() != null) {
+            if (product.getPrice() < 0) {
+                throw new BizException(BizExceptionEnum.PRODUCT_PRICE_ERROR);
+            }
+            // 如果价格为0，保持原价格不变（这个逻辑可以根据业务需求调整）
+            if (product.getPrice() == 0.0) {
+                product.setPrice(originalProduct.getPrice());
+            }
         }
-        if (product.getMinStock() != null && product.getMinStock() < 10) {
-            throw new BizException(BizExceptionEnum.PRODUCT_MIN_STOCK_ERROR);
+
+        // 验证最小库存（如果最小库存有传入）
+        if (product.getMinStock() != null) {
+            if (product.getMinStock() < 10) {
+                throw new BizException(BizExceptionEnum.PRODUCT_MIN_STOCK_ERROR);
+            }
         }
-        // 优化后的空值检查
-        if (StringUtils.isEmpty(product.getUnit())) {
-            throw new BizException(BizExceptionEnum.PRODUCT_PRICE_ERROR);
+
+        // 验证单位（如果单位有传入）
+        if (product.getUnit() != null) {
+            if (product.getUnit().isEmpty()) {
+                throw new BizException(BizExceptionEnum.PRODUCT_UNIT_ERROR);
+            }
         }
-        //判断供应商是否存在
-        if (product.getSupplierId() != null) {
+
+        // 验证供应商是否存在（如果供应商ID有更改且不为null）
+        if (product.getSupplierId() != null && !product.getSupplierId().equals(originalProduct.getSupplierId())) {
             supplierService.getSupplierById(product.getSupplierId());
         }
-        //判断启用状态是否符合规范
-        if (product.getStatus() != null && product.getStatus() != 1 && product.getStatus() != 0) {
-            throw new BizException(BizExceptionEnum.PRODUCT_STATUS_ERROR);
+
+        // 验证启用状态（如果状态有传入）
+        if (product.getStatus() != null) {
+            if (product.getStatus() != 1 && product.getStatus() != 0) {
+                throw new BizException(BizExceptionEnum.PRODUCT_STATUS_ERROR);
+            }
         }
+
         // 处理文件上传
         if (file != null && !file.isEmpty()) {
             // 判断新文件与原文件是否不同
-            if (isDifferentFile(productById.getImageUrl(), file)) {
-                String imageUrl = handleImageUpload(file, productById.getCode());
+            if (isDifferentFile(originalProduct.getImageUrl(), file)) {
+                String imageUrl = handleImageUpload(file, originalProduct.getCode());
                 product.setImageUrl(imageUrl);
             } else {
                 // 文件相同，保留原图片URL
-                product.setImageUrl(productById.getImageUrl());
+                product.setImageUrl(originalProduct.getImageUrl());
             }
         } else {
             // 没有新文件上传，保留原图片URL
-            product.setImageUrl(productById.getImageUrl());
+            product.setImageUrl(originalProduct.getImageUrl());
         }
 
         // 执行更新操作并返回影响行数
         return productMapper.updProduct(product);
     }
+
 
     /**
      * 判断新文件与原文件是否不同
@@ -509,5 +537,14 @@ public class ProductServiceImpl implements ProductService {
             throw new BizException(BizExceptionEnum.PRODUCT_EXIT_INVENTORY);
         }
         return productMapper.delProductById(id);
+    }
+
+    @Override
+    public PageInfo<ProductWithCategoryAndSupplierDTO> getAllProductWithCategoryAndSupplierByChange(int pageNum, int pageSize, String prodectName, String categoryName, String supplierName) {
+        try (com.github.pagehelper.Page<ProductWithCategoryAndSupplierDTO> _page = PageHelper.startPage(pageNum,
+                pageSize)){
+            List<ProductWithCategoryAndSupplierDTO> result = productMapper.getAllProductWithCategoryAndSupplierByChange(prodectName, categoryName, supplierName);
+            return new PageInfo<>(result);
+        }
     }
 }

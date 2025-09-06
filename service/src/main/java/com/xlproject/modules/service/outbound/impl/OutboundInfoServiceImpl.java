@@ -23,4 +23,9 @@ public class OutboundInfoServiceImpl implements OutboundInfoService {
             return new PageInfo<>(list);
         }
     }
+
+    @Override
+    public Integer getOutboundOrderCount() {
+        return outboundOrderInfoMapper.getOutboundOrderCount();
+    }
 }
